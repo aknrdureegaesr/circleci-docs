@@ -258,3 +258,7 @@ It is also possible to lower the cost of a cache miss by splitting your job acro
 Certain languages and frameworks have more expensive steps that can and should be cached. Scala and Elixir are two examples where caching the compilation steps will be especially effective. Rails developers, too, would notice a performance boost from caching frontend assets.
 
 Do not cache everything, but _do_ consider caching for costly steps like compilation.
+
+### Guarding against changes in the base image
+
+Compilation typically makes use of libraries.  From one Docker build image to the next, libraries may change, requiring re-compilation.  In this situation, the old compilation result will run into a  "LoadError", complaining "cannot open shared object file: No such file or directory".  As an umbrella countermeasure, you can invalidate the cache each time _any_ different packages are installed in your build image.  For Debian and Ubuntu - based build images, `{{ checksum "/var/lib/dpkg/status" }}` provides a sensor.  This will change whenever any of the distribution package installation mechanisms is used to change any package in the system.
